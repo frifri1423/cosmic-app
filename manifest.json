@@ -1,0 +1,17 @@
+{
+  "name": "Cosmic — Rituel Cosmique",
+  "short_name": "Cosmic",
+  "description": "Votre rituel quotidien éclairé par les étoiles",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a1a",
+  "theme_color": "#6B5CE7",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><circle cx='96' cy='96' r='96' fill='%230a0a1a'/><circle cx='96' cy='96' r='50' fill='%236B5CE7' opacity='0.3'/><circle cx='96' cy='96' r='30' fill='%236B5CE7'/><circle cx='86' cy='86' r='6' fill='white' opacity='0.9'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
