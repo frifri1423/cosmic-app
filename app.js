@@ -215,7 +215,25 @@ function showPage(page) {
   window.scrollTo(0, 0);
 }
 
+var STRIPE_LINK = 'https://buy.stripe.com/9B64gA0rH0mF5eL7YL2go03';
+
+function checkPremium() {
+  if (window.location.search.indexOf('premium=1') !== -1) {
+    state.premium = true;
+    saveState();
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+  return state.premium || false;
+}
+
 function showPremium() {
+  if (checkPremium()) {
+    var a = document.createElement('div');
+    a.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#151535;border:1px solid #4ADE80;border-radius:20px;padding:32px;z-index:9999;text-align:center;max-width:320px;';
+    a.innerHTML = '<div style="font-size:2.5rem;margin-bottom:12px;">✅</div><h3 style="font-family:Space Grotesk,sans-serif;margin-bottom:8px;">Vous êtes Premium !</h3><p style="color:#b0b0d0;font-size:0.88rem;">Toutes les fonctionnalités sont débloquées.</p><button onclick="this.parentNode.remove()" style="margin-top:16px;background:#4ADE80;color:#000;border:none;border-radius:10px;padding:10px 24px;font-weight:600;cursor:pointer;">OK</button>';
+    document.body.appendChild(a);
+    return;
+  }
   var modal = document.createElement('div');
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;';
   modal.innerHTML = '<div style="background:#151535;border:1px solid #252560;border-radius:24px;padding:32px;max-width:360px;width:100%;text-align:center;">' +
@@ -227,11 +245,10 @@ function showPremium() {
     '<div style="display:flex;gap:10px;padding:8px 0;font-size:0.88rem;color:#f0f0ff;"><span style="color:#4ADE80">✓</span> Compatibilité des signes</div>' +
     '<div style="display:flex;gap:10px;padding:8px 0;font-size:0.88rem;color:#f0f0ff;"><span style="color:#4ADE80">✓</span> Pods illimités</div>' +
     '<div style="display:flex;gap:10px;padding:8px 0;font-size:0.88rem;color:#f0f0ff;"><span style="color:#4ADE80">✓</span> Archives illimitées</div>' +
-    '<div style="display:flex;gap:10px;padding:8px 0;font-size:0.88rem;color:#f0f0ff;"><span style="color:#4ADE80">✓</span> Rappels personnalises</div></div>' +
-    '<div style="background:linear-gradient(135deg,#FFB347,#FF8C00);border-radius:12px;padding:14px;font-weight:700;font-size:1rem;color:#fff;margin-bottom:10px;">9,99€ / mois</div>' +
-    '<div style="color:#7070a0;font-size:0.78rem;margin-bottom:16px;">Essai gratuit 7 jours • Sans engagement</div>' +
-    '<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="background:#6B5CE7;color:#fff;border:none;border-radius:12px;padding:12px 24px;font-weight:600;cursor:pointer;">S\'abonner</button>' +
-    '<div onclick="this.closest(\'div[style*=fixed]\').remove()" style="margin-top:12px;color:#7070a0;font-size:0.8rem;cursor:pointer;">Plus tard</div></div>';
+    '<div style="display:flex;gap:10px;padding:8px 0;font-size:0.88rem;color:#f0f0ff;"><span style="color:#4ADE80">✓</span> Rappels personnalisés</div></div>' +
+    '<a href="' + STRIPE_LINK + '" style="display:block;background:linear-gradient(135deg,#FFB347,#FF8C00);border-radius:12px;padding:14px;font-weight:700;font-size:1rem;color:#fff;margin-bottom:10px;text-decoration:none;">S\'abonner — 9,99€/mois</a>' +
+    '<div style="color:#7070a0;font-size:0.78rem;margin-bottom:16px;">Sans engagement • Annulable à tout moment</div>' +
+    '<div onclick="this.closest(\'div[style*=fixed]\').remove()" style="margin-top:4px;color:#7070a0;font-size:0.8rem;cursor:pointer;">Plus tard</div></div>';
   document.body.appendChild(modal);
   modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
 }
