@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Cosmic — Rituel Cosmique</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a1a;
+      --bg2: #0f0f2e;
+      --surface: #151535;
+      --surface2: #1a1a40;
+      --border: #252560;
+      --accent: #6B5CE7;
+      --accent2: #9D8DF7;
+      --accent3: #FF6B9D;
+      --gold: #FFB347;
+      --green: #4ADE80;
+      --text: #f0f0ff;
+      --text2: #b0b0d0;
+      --text3: #7070a0;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    .app {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* HEADER */
+    .header {
+      padding: 16px 20px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg);
+      position: relative;
+      z-index: 10;
+    }
+    .header-left { display: flex; flex-direction: column; gap: 2px; }
+    .greeting { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; }
+    .subgreeting { font-size: 0.8rem; color: var(--text2); }
+    .streak-badge {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .streak-badge .fire { font-size: 0.9rem; }
+
+    /* MAIN SCROLL */
+    .main-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0 20px 120px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* MOON PHASE */
+    .moon-card {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin: 12px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .moon-card::before {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle, rgba(107,92,231,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .moon-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .moon-phase { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700; }
+    .moon-date { font-size: 0.78rem; color: var(--text3); }
+    .moon-energy {
+      font-size: 0.88rem;
+      color: var(--accent2);
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+    .moon-advice {
+      font-size: 0.85rem;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+    .moon-visual {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FFB347 0%, #FFF7E0 100%);
+      box-shadow: 0 0 30px rgba(255,179,71,0.3);
+    }
+
+    /* DAILY CARD */
+    .daily-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin: 12px 0;
+    }
+    .card-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text3);
+      margin-bottom: 8px;
+    }
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .horoscope-text {
+      font-size: 0.9rem;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+    .luck-score {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .luck-label { font-size: 0.82rem; color: var(--text2); }
+    .luck-bar {
+      flex: 1;
+      height: 6px;
+      background: var(--bg2);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .luck-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent3));
+      border-radius: 3px;
+      transition: width 1s ease;
+    }
+    .luck-num { font-size: 0.82rem; font-weight: 600; color: var(--accent2); }
+
+    /* JOURNAL */
+    .journal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin: 12px 0;
+    }
+    .journal-prompt {
+      font-size: 0.95rem;
+      color: var(--accent2);
+      font-weight: 500;
+      margin-bottom: 14px;
+      font-style: italic;
+    }
+    .journal-input {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: inherit;
+      resize: none;
+      min-height: 80px;
+      transition: border-color 0.2s;
+    }
+    .journal-input:focus { outline: none; border-color: var(--accent); }
+    .journal-input::placeholder { color: var(--text3); }
+    .journal-save {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.2s;
+    }
+    .journal-save:hover { background: var(--accent2); }
+
+    /* POD */
+    .pod-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin: 12px 0;
+    }
+    .pod-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .pod-title { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; }
+    .pod-count { font-size: 0.78rem; color: var(--text3); }
+    .pod-members { display: flex; flex-direction: column; gap: 10px; }
+    .pod-member {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--bg2);
+      border-radius: 12px;
+    }
+    .member-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .member-info { flex: 1; }
+    .member-name { font-size: 0.88rem; font-weight: 600; }
+    .member-status { font-size: 0.75rem; color: var(--text3); }
+    .member-sparkle { font-size: 0.85rem; }
+
+    /* STREAK COUNTER */
+    .streak-counter {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent3) 100%);
+      border-radius: 20px;
+      padding: 20px;
+      margin: 12px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .streak-counter::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .streak-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+    }
+    .streak-label {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.8);
+      margin-top: 4px;
+    }
+    .streak-msg {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.7);
+      margin-top: 10px;
+    }
+
+    /* NAVIGATION TAB BAR */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: rgba(10,10,26,0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0;
+      padding-bottom: calc(8px + var(--safe-bottom));
+      z-index: 100;
+    }
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 16px;
+      color: var(--text3);
+      text-decoration: none;
+      font-size: 0.7rem;
+      transition: all 0.2s;
+      border-radius: 12px;
+    }
+    .tab-item.active { color: var(--accent2); }
+    .tab-item .icon { font-size: 1.3rem; }
+    .tab-item.active .icon { transform: scale(1.1); }
+
+    /* PAGE VIEWS */
+    .page { display: none; height: 100%; flex-direction: column; }
+    .page.active { display: flex; }
+
+    /* HOME PAGE */
+    .home-page .main-scroll { padding-top: 8px; }
+
+    /* EXPLORE PAGE */
+    .explore-page .main-scroll { padding-top: 8px; }
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 20px 0 12px;
+    }
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .content-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    .content-card:active { transform: scale(0.97); }
+    .content-card .card-icon { font-size: 1.6rem; margin-bottom: 8px; }
+    .content-card .card-emoji { font-size: 1.6rem; margin-bottom: 8px; }
+    .content-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+    .content-card p { font-size: 0.78rem; color: var(--text3); }
+    .content-card .tag {
+      display: inline-block;
+      background: rgba(107,92,231,0.15);
+      color: var(--accent2);
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 100px;
+      margin-top: 6px;
+    }
+    .content-card.premium { border-color: var(--gold); }
+    .content-card.premium .tag { background: rgba(255,179,71,0.15); color: var(--gold); }
+
+    /* PODS PAGE */
+    .pods-page .main-scroll { padding-top: 8px; }
+    .create-pod-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      color: var(--accent2);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin: 16px 0;
+      transition: all 0.2s;
+    }
+    .create-pod-btn:active { background: var(--surface2); }
+
+    /* PROFILE PAGE */
+    .profile-page .main-scroll { padding-top: 8px; }
+    .profile-header {
+      text-align: center;
+      padding: 20px;
+    }
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .profile-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; }
+    .profile-sign { font-size: 0.85rem; color: var(--accent2); margin-top: 4px; }
+    .profile-stats {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin: 20px 0;
+    }
+    .stat-item { text-align: center; }
+    .stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700; }
+    .stat-label { font-size: 0.75rem; color: var(--text3); }
+    .stat-divider { width: 1px; background: var(--border); }
+    .profile-menu {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 16px 0;
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item:active { background: var(--surface2); }
+    .menu-item .mi-icon { font-size: 1.2rem; }
+    .menu-item .mi-text { flex: 1; }
+    .menu-item .mi-arrow { color: var(--text3); font-size: 0.85rem; }
+    .menu-item.premium-only { color: var(--gold); }
+
+    /* PREMIUM BANNER */
+    .premium-banner {
+      background: linear-gradient(135deg, #2a1a4a 0%, #1a0a2e 100%);
+      border: 1px solid var(--accent);
+      border-radius: 20px;
+      padding: 24px;
+      margin: 20px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .premium-banner::before {
+      content: '✨';
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      font-size: 1.2rem;
+    }
+    .premium-banner h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .premium-banner p { font-size: 0.85rem; color: var(--text2); margin-bottom: 14px; }
+    .premium-btn {
+      background: linear-gradient(135deg, var(--gold), #FF8C00);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 28px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    /* TRANSITION ANIMATIONS */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .page.active .main-scroll > * {
+      animation: fadeIn 0.3s ease both;
+    }
+    .page.active .main-scroll > *:nth-child(2) { animation-delay: 0.05s; }
+    .page.active .main-scroll > *:nth-child(3) { animation-delay: 0.1s; }
+    .page.active .main-scroll > *:nth-child(4) { animation-delay: 0.15s; }
+
+    @keyframes complete {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    .ritual-complete { animation: complete 0.5s ease; }
+
+    /* ONBOARDING */
+    .onboarding {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .onboarding.hidden { display: none; }
+    .onboarding-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .onboarding-sub {
+      font-size: 1rem;
+      color: var(--text2);
+      margin-bottom: 40px;
+    }
+    .onboarding-step {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 360px;
+    }
+    .onboarding-step.active { display: flex; }
+    .onboarding-icon { font-size: 3rem; margin-bottom: 20px; }
+    .onboarding-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .onboarding-desc { font-size: 0.9rem; color: var(--text2); line-height: 1.6; margin-bottom: 30px; }
+    .onboarding-dots { display: flex; gap: 8px; margin-bottom: 30px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+    .dot.active { background: var(--accent); width: 24px; border-radius: 4px; }
+    .onboarding-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 16px 40px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+      max-width: 280px;
+    }
+    .onboarding-btn:active { opacity: 0.8; }
+
+    .name-input {
+      width: 100%;
+      max-width: 280px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .name-input:focus { outline: none; border-color: var(--accent); }
+
+    .sign-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: 100%;
+      max-width: 360px;
+      margin-bottom: 20px;
+    }
+    .sign-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 8px;
+      font-size: 0.8rem;
+      color: var(--text);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .sign-btn:hover, .sign-btn:active { border-color: var(--accent); background: var(--surface2); }
+    .sign-btn.selected { border-color: var(--accent); background: rgba(107,92,231,0.2); color: var(--accent2); }
+    .sign-btn .sign-emoji { font-size: 1.3rem; display: block; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ONBOARDING -->
+  <div class="onboarding" id="onboarding">
+    <!-- STEP 1 -->
+    <div class="onboarding-step active" data-step="1">
+      <div class="onboarding-icon">🌙</div>
+      <div class="onboarding-title">Bienvenue sur Cosmic</div>
+      <div class="onboarding-desc">Votre rituel quotidien éclairé par les étoiles. Chaque jour, un nouveau chapitre de votre voyage cosmique.</div>
+      <div class="onboarding-dots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <button class="onboarding-btn" onclick="nextStep()">Commencer</button>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="onboarding-step" data-step="2">
+      <div class="onboarding-icon">👋</div>
+      <div class="onboarding-title">Comment vous appelez-vous ?</div>
+      <div class="onboarding-desc">Votre prénom sera utilisé pour personnaliser votre expérience.</div>
+      <input type="text" class="name-input" id="userName" placeholder="Votre prénom" maxlength="30">
+      <div class="onboarding-dots">
+        <div class="dot"></div>
+        <div class="dot active"></div>
+        <div class="dot"></div>
+      </div>
+      <button class="onboarding-btn" onclick="nextStep()">Continuer</button>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="onboarding-step" data-step="3">
+      <div class="onboarding-icon">⭐</div>
+      <div class="onboarding-title">Quel est votre signe ?</div>
+      <div class="onboarding-desc">Votre profil cosmique sera personnalisé selon votre signe astrologique.</div>
+      <div class="sign-grid" id="signGrid"></div>
+      <div class="onboarding-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot active"></div>
+      </div>
+      <button class="onboarding-btn" onclick="finishOnboarding()" id="finishBtn" disabled>Continuer</button>
+    </div>
+  </div>
+
+  <!-- HOME PAGE -->
+  <div class="page home-page active" id="page-home">
+    <div class="header">
+      <div class="header-left">
+        <div class="greeting" id="greeting">Bonsoir</div>
+        <div class="subgreeting" id="dateDisplay"></div>
+      </div>
+      <div class="streak-badge">
+        <span class="fire">🔥</span>
+        <span id="headerStreak">0</span>
+      </div>
+    </div>
+
+    <div class="main-scroll" id="homeScroll">
+      <!-- Moon Card -->
+      <div class="moon-card">
+        <div class="moon-header">
+          <div>
+            <div class="moon-phase" id="moonPhase">Lune montante</div>
+            <div class="moon-date" id="moonDate"></div>
+          </div>
+        </div>
+        <div class="moon-energy" id="moonEnergy">🌕 Énergie de renouveau</div>
+        <div class="moon-advice" id="moonAdvice">Laissez les anciennes habitudes mourir.雷新しい starts today.</div>
+        <div class="moon-visual" id="moonVisual"></div>
+      </div>
+
+      <!-- Streak Counter -->
+      <div class="streak-counter" id="streakCounter">
+        <div class="streak-num" id="streakNum">0</div>
+        <div class="streak-label">jours de suite</div>
+        <div class="streak-msg" id="streakMsg">Complétez votre rituel pour commencer le streak</div>
+      </div>
+
+      <!-- Daily Horoscope -->
+      <div class="daily-card">
+        <div class="card-label">Horoscope du jour</div>
+        <div class="card-title" id="horoscopeTitle">Verseau — 23 janvier</div>
+        <div class="horoscope-text" id="horoscopeText">Aujourd'hui, l'énergie cosmique est particulièrement favorable àreseau. Les planètes s'alignent pour vous offrir une opportunité inattendue. Ouvrez-vous aux nouvelles connexions et n'ayez pas peur de prendre des risques calculés. Votre intuition est à son maximum — faites-lui confiance.</div>
+        <div class="luck-score">
+          <span class="luck-label">Score chance</span>
+          <div class="luck-bar"><div class="luck-fill" id="luckFill" style="width: 0%"></div></div>
+          <span class="luck-num" id="luckNum">0%</span>
+        </div>
+      </div>
+
+      <!-- Journal -->
+      <div class="journal-card">
+        <div class="card-label">Rituel du soir</div>
+        <div class="card-title">📝 Reflection</div>
+        <div class="journal-prompt" id="journalPrompt">"Qu'avez-vous appris sur vous-même aujourd'hui ?"</div>
+        <textarea class="journal-input" id="journalEntry" placeholder="Écrivez vos pensées..." maxlength="500"></textarea>
+        <button class="journal-save" onclick="saveJournal()">Sauvegarder</button>
+      </div>
+
+      <!-- Today's Ritual CTA -->
+      <div class="daily-card" id="ritualCard" onclick="completeRitual()">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="width:48px;height:48px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">✨</div>
+          <div style="flex:1">
+            <div class="card-title">Combler le rituel du matin</div>
+            <div style="font-size:0.82rem;color:var(--text3);">Tap to complete · +1 day streak</div>
+          </div>
+          <div style="font-size:1.4rem;color:var(--text3);">→</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPLORE PAGE -->
+  <div class="page explore-page" id="page-explore">
+    <div class="header">
+      <div class="header-left">
+        <div class="greeting">Explorer</div>
+        <div class="subgreeting">Contenu cosmique</div>
+      </div>
+    </div>
+    <div class="main-scroll">
+      <div class="section-title">✨ Pour vous</div>
+      <div class="content-grid">
+        <div class="content-card" onclick="showPremium()">
+          <div class="card-emoji">🪐</div>
+          <h4>Birth Chart</h4>
+          <p>Votre carte du ciel complète</p>
+          <span class="tag">Premium</span>
+        </div>
+        <div class="content-card" onclick="showPremium()">
+          <div class="card-emoji">💕</div>
+          <h4>Compatibilité</h4>
+          <p>Avec votre partner ou ami</p>
+          <span class="tag">Premium</span>
+        </div>
+        <div class="content-card">
+          <div class="card-emoji">🔮</div>
+          <h4>Transit du jour</h4>
+          <p>Ce que les planètes changent</p>
+        </div>
+        <div class="content-card">
+          <div class="card-emoji">📅</div>
+          <h4>Calendrier lunaire</h4>
+          <p>Phases et éclipses à venir</p>
+        </div>
+      </div>
+
+      <div class="section-title">🌟 Articles</div>
+      <div class="content-grid">
+        <div class="content-card">
+          <div class="card-emoji">🧘</div>
+          <h4>Rituel nouvelle lune</h4>
+          <p>Les étapes pour profiter de cette énergie</p>
+        </div>
+        <div class="content-card">
+          <div class="card-emoji">💼</div>
+          <h4>Mars en Bélier</h4>
+          <p>Impact sur votre carrière</p>
+        </div>
+        <div class="content-card" onclick="showPremium()">
+          <div class="card-emoji">💰</div>
+          <h4>L'astrologie et l'argent</h4>
+          <p>Votre profil financier cosmique</p>
+          <span class="tag">Premium</span>
+        </div>
+        <div class="content-card">
+          <div class="card-emoji">😴</div>
+          <h4>Sommeil et étoiles</h4>
+          <p>Rituels pour des nuits paisibles</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PODS PAGE -->
+  <div class="page pods-page" id="page-pods">
+    <div class="header">
+      <div class="header-left">
+        <div class="greeting">Mon Pod</div>
+        <div class="subgreeting">Accountability cosmique</div>
+      </div>
+    </div>
+    <div class="main-scroll">
+      <div class="pod-card" id="podCard">
+        <div class="card-label">Votre groupe de rituel</div>
+        <div class="pod-header">
+          <div class="pod-title">✨ Les Explorateurs</div>
+          <div class="pod-count">4 membres</div>
+        </div>
+        <div class="pod-members" id="podMembers">
+          <div class="pod-member">
+            <div class="member-avatar" style="background:#6B5CE7;">M</div>
+            <div class="member-info">
+              <div class="member-name" id="podMember1">Marie</div>
+              <div class="member-status" id="podStatus1">✓ Rituel complété</div>
+            </div>
+            <div class="member-sparkle">✨</div>
+          </div>
+          <div class="pod-member">
+            <div class="member-avatar" style="background:#FF6B9D;">T</div>
+            <div class="member-info">
+              <div class="member-name">Thomas</div>
+              <div class="member-status">✓ Rituel complété</div>
+            </div>
+            <div class="member-sparkle">✨</div>
+          </div>
+          <div class="pod-member">
+            <div class="member-avatar" style="background:#FFB347;">L</div>
+            <div class="member-info">
+              <div class="member-name">Léa</div>
+              <div class="member-status">En cours...</div>
+            </div>
+            <div class="member-sparkle">⏳</div>
+          </div>
+          <div class="pod-member">
+            <div class="member-avatar" style="background:#4ADE80;">S</div>
+            <div class="member-info">
+              <div class="member-name">Sophie</div>
+              <div class="member-status">Non complété</div>
+            </div>
+            <div class="member-sparkle">💤</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="create-pod-btn" onclick="showPremium()">
+        <span>🔗</span> Rejoindre ou créer un pod
+      </button>
+
+      <div class="section-title">Historique de la semaine</div>
+      <div class="pod-card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+          <span style="font-size:0.85rem;color:var(--text2);">Votre progression</span>
+          <span style="font-size:0.85rem;color:var(--accent2);font-weight:600;">5/7 jours</span>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <div style="flex:1;height:8px;background:var(--green);border-radius:4px;"></div>
+          <div style="flex:1;height:8px;background:var(--green);border-radius:4px;"></div>
+          <div style="flex:1;height:8px;background:var(--green);border-radius:4px;"></div>
+          <div style="flex:1;height:8px;background:var(--green);border-radius:4px;"></div>
+          <div style="flex:1;height:8px;background:var(--green);border-radius:4px;"></div>
+          <div style="flex:1;height:8px;background:var(--border);border-radius:4px;"></div>
+          <div style="flex:1;height:8px;background:var(--border);border-radius:4px;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <span style="font-size:0.7rem;color:var(--text3);">Lun</span>
+          <span style="font-size:0.7rem;color:var(--text3);">Dim</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE PAGE -->
+  <div class="page profile-page" id="page-profile">
+    <div class="header">
+      <div class="header-left">
+        <div class="greeting">Profil</div>
+      </div>
+    </div>
+    <div class="main-scroll">
+      <div class="profile-header">
+        <div class="profile-avatar" id="profileAvatar" style="background:linear-gradient(135deg,var(--accent),var(--accent3));">?</div>
+        <div class="profile-name" id="profileName">Utilisateur</div>
+        <div class="profile-sign" id="profileSign">Signe astral</div>
+        <div class="profile-stats">
+          <div class="stat-item">
+            <div class="stat-num" id="profileStreak">0</div>
+            <div class="stat-label">Jours streak</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-num" id="profileRituals">0</div>
+            <div class="stat-label">Rituels</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-num">5</div>
+            <div class="stat-label">Journals</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="premium-banner">
+        <h3>✨ Débloquez Cosmic Premium</h3>
+        <p>Birth chart complète, pods illimités, compatibilité et plus encore.</p>
+        <button class="premium-btn" onclick="showPremium()">Essayer gratuit 7 jours</button>
+      </div>
+
+      <div class="profile-menu">
+        <div class="menu-item" onclick="showPremium()">
+          <span class="mi-icon">🪐</span>
+          <span class="mi-text">Ma birth chart</span>
+          <span class="mi-arrow">→</span>
+        </div>
+        <div class="menu-item">
+          <span class="mi-icon">📊</span>
+          <span class="mi-text">Mon voyage cosmique</span>
+          <span class="mi-arrow">→</span>
+        </div>
+        <div class="menu-item">
+          <span class="mi-icon">🔔</span>
+          <span class="mi-text">Rappels</span>
+          <span class="mi-arrow">→</span>
+        </div>
+        <div class="menu-item premium-only" onclick="showPremium()">
+          <span class="mi-icon">💎</span>
+          <span class="mi-text">Passer Premium</span>
+          <span class="mi-arrow">→</span>
+        </div>
+        <div class="menu-item">
+          <span class="mi-icon">⚙️</span>
+          <span class="mi-text">Paramètres</span>
+          <span class="mi-arrow">→</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB BAR -->
+  <nav class="tab-bar">
+    <a href="#" class="tab-item active" data-page="home" onclick="showPage('home');return false;">
+      <span class="icon">🌙</span>
+      <span>Accueil</span>
+    </a>
+    <a href="#" class="tab-item" data-page="explore" onclick="showPage('explore');return false;">
+      <span class="icon">✨</span>
+      <span>Explorer</span>
+    </a>
+    <a href="#" class="tab-item" data-page="pods" onclick="showPage('pods');return false;">
+      <span class="icon">👥</span>
+      <span>Pod</span>
+    </a>
+    <a href="#" class="tab-item" data-page="profile" onclick="showPage('profile');return false;">
+      <span class="icon">✨</span>
+      <span>Profil</span>
+    </a>
+  </nav>
+</div>
+
+<script>
+// ============================
+// COSMIC APP — JAVASCRIPT
+// ============================
+
+// DATA
+const SIGNS = [
+  { name: 'Bélier', emoji: '♈', dates: '21 mars - 19 avr.', color: '#FF6B6B' },
+  { name: 'Taureau', emoji: '♉', dates: '20 avr. - 20 mai', color: '#FFB347' },
+  { name: 'Gémeaux', emoji: '♊', dates: '21 mai - 20 juin', color: '#4ECDC4' },
+  { name: 'Cancer', emoji: '♋', dates: '21 juin - 22 juil.', color: '#A8  { name: 'Lion', emoji: '♌', dates: '23 juil. - 22 août', color: '#FFD93D' },
+  { name: 'Vierge', emoji: '♍', dates: '23 août - 22 sept.', color: '#C9B1FF' },
+  { name: 'Balance', emoji: '♎', dates: '23 sept. - 22 oct.', color: '#FF8FAB' },
+  { name: 'Scorpion', emoji: '♏', dates: '23 oct. - 21 nov.', color: '#6B5CE7' },
+  { name: 'Sagittaire', emoji: '♐', dates: '22 nov. - 21 déc.', color: '#FF6B9D' },
+  { name: 'Capricorne', emoji: '♑', dates: '22 déc. - 19 jan.', color: '#A8A8A8' },
+  { name: 'Verseau', emoji: '♒', dates: '20 jan. - 18 fév.', color: '#4ADE80' },
+  { name: 'Poissons', emoji: '♓', dates: '19 fév. - 20 mars', color: '#60A5FA' },
+];
+
+const MOONS = [
+  { name: 'Nouvelle lune', energy: '🌑 Énergie de renouveau', advice: 'C\'est le moment de fixer de nouvelles intentions.雷新しい beginning.' },
+  { name: 'Premier croissant', energy: '🌒 Énergie de dynamisme', advice: 'Lancez vos nouveaux projets avec détermination.' },
+  { name: 'Premier quartier', energy: '🌓 Énergie d\'action', advice: 'Les décisions prises maintenant ont du poids. Agissez.' },
+  { name: 'Gibbeuse', energy: '🌔 Énergie de poussée', advice: 'Vos efforts commencent à payer. Continuez.' },
+  { name: 'Pleine lune', energy: '🌕 Énergie d\'illumination', advice: 'Moment de révélation et de complète. Celebrez vos wins.' },
+  { name: 'Gibbeuse', energy: '🌖 Énergie de réflexion', advice: 'Il est temps de lâcher ce qui ne vous sert plus.' },
+  { name: 'Dernier quartier', energy: '🌗 Énergie de relâchement', advice: 'Accordez-vous du répit. Le cycle touche à sa fin.' },
+  { name: 'Dernier croissant', energy: '🌘 Énergie de repos', advice: 'Prenez du temps pour vous. La nouvelle lune approche.' },
+];
+
+const JOURNAL_PROMPTS = [
+  "Qu'avez-vous appris sur vous-même aujourd'hui ?",
+  "Quelle est une chose dont vous êtes reconnaissant(e) aujourd'hui ?",
+  "Si vous pouviez revivre un moment de la journée, lequel serait-ce ?",
+  "Quel était l'état de votre énergie ce matin ? Et maintenant ?",
+  "Quelle conversation a marqué votre journée ?",
+  "Qu'est-ce qui vous a sorti de votre zone de confort aujourd'hui ?",
+  "Quel acte de gentillesse avez-vous reçu ou offert aujourd'hui ?",
+  "Si cette journée était une chanson, quelle serait-elle ?",
+];
+
+const HOROSCOPE_TEMPLATES = [
+  "Aujourd'hui, les astres s'alignent pour vous offrir une énergie remarkable. Votre {sign} nature trouve son expression parfaite dans {quality}. C'est un bon jour pour {action1} et pour expérimenter {action2}.",
+  "La configuration planétaire du jour renforce votre intuition, {sign}. Votre capacité à {quality} est particulièrement acérée. Profitez-en pour {action1} — vous pourriez être surpris par les résultats.",
+  "{sign}, l'énergie de cette journée vous pousse vers {action1}. Faites confiance à votre {quality} naturelle. {action2} sera particulièrement favorable en soirée.",
+  "Les influences astrales mettent en lumière votre capacité à {quality}. C'est le moment de {action1} et de prendre des décisions concernant {topic}. Votre {sign} wisdom est à son apogée.",
+];
+
+const ACTIONS = ['les collaborations', 'les projets créatifs', 'les conversations importantes', 'les décisions financières', 'les relations', 'les voyages', 'l\'apprentissage', 'le repos créatif'];
+const QUALITIES = ['intuition', 'détermination', 'créativité', 'diplomatie', 'courage', 'sens pratique', 'vision', 'bienveillance'];
+const TOPICS = ['votre carrière', 'vos finances', 'vos relations', 'votre santé', 'votre développement personnel'];
+
+// STATE
+let state = {
+  onboarded: false,
+  name: '',
+  sign: null,
+  streak: 0,
+  ritualsCompleted: 0,
+  todayCompleted: false,
+  journalEntries: [],
+  moonPhase: 0,
+  lastOpen: null,
+};
+
+// LOCAL STORAGE
+function saveState() {
+  try { localStorage.setItem('cosmic_state', JSON.stringify(state)); } catch(e) {}
+}
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('cosmic_state') || '{}');
+    if (s) state = { ...state, ...s };
+  } catch(e) {}
+}
+
+// INITIALIZE
+function init() {
+  loadState();
+  buildSignGrid();
+  if (state.onboarded) {
+    document.getElementById('onboarding').classList.add('hidden');
+    document.querySelector('.tab-bar').style.display = 'flex';
+    renderApp();
+  } else {
+    document.querySelector('.tab-bar').style.display = 'none';
+  }
+}
+
+// BUILD SIGN GRID
+function buildSignGrid() {
+  const grid = document.getElementById('signGrid');
+  SIGNS.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'sign-btn';
+    btn.dataset.index = i;
+    btn.innerHTML = `<span class="sign-emoji">${s.emoji}</span>${s.name}`;
+    btn.onclick = () => selectSign(i);
+    grid.appendChild(btn);
+  });
+}
+
+function selectSign(index) {
+  state.sign = SIGNS[index];
+  document.querySelectorAll('.sign-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === index);
+  });
+  document.getElementById('finishBtn').disabled = false;
+}
+
+// ONBOARDING NAVIGATION
+let currentStep = 1;
+function nextStep() {
+  if (currentStep === 2) {
+    const nameInput = document.getElementById('userName');
+    if (!nameInput.value.trim()) { nameInput.focus(); return; }
+    state.name = nameInput.value.trim();
+  }
+  document.querySelector(`.onboarding-step[data-step="${currentStep}"]`).classList.remove('active');
+  currentStep++;
+  document.querySelector(`.onboarding-step[data-step="${currentStep}"]`).classList.add('active');
+}
+
+function finishOnboarding() {
+  if (!state.name || !state.sign) return;
+  state.onboarded = true;
+  state.lastOpen = new Date().toDateString();
+  saveState();
+  document.getElementById('onboarding').classList.add('hidden');
+  document.querySelector('.tab-bar').style.display = 'flex';
+  renderApp();
+}
+
+// RENDER APP
+function renderApp() {
+  // Check day change
+  const today = new Date().toDateString();
+  if (state.lastOpen !== today) {
+    state.todayCompleted = false;
+    state.lastOpen = today;
+    saveState();
+  }
+
+  // Greeting
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
+  document.getElementById('greeting').textContent = `${greet}, ${state.name}`;
+
+  // Date
+  const options = { weekday: 'long', day: 'numeric', month: 'long' };
+  document.getElementById('dateDisplay').textContent = new Date().toLocaleDateString('fr-FR', options);
+
+  // Moon phase
+  const moonIndex = Math.floor((new Date().getDate() + state.moonPhase) % 8);
+  const moon = MOONS[moonIndex];
+  document.getElementById('moonPhase').textContent = moon.name;
+  document.getElementById('moonDate').textContent = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+  document.getElementById('moonEnergy').textContent = moon.energy;
+  document.getElementById('moonAdvice').textContent = moon.advice;
+  document.getElementById('moonVisual').style.background = moonIndex < 4
+    ? `linear-gradient(${moonIndex * 15}deg, #FFB347 0%, #FFF7E0 100%)`
+    : `linear-gradient(${180 + (moonIndex - 4) * 15}deg, #C0C0C0 0%, #FFF7E0 100%)`;
+
+  // Streak
+  document.getElementById('headerStreak').textContent = state.streak;
+  document.getElementById('streakNum').textContent = state.streak;
+  document.getElementById('profileStreak').textContent = state.streak;
+  document.getElementById('profileRituals').textContent = state.ritualsCompleted;
+  if (state.todayCompleted) {
+    document.getElementById('streakMsg').textContent = '✓ Rituel complété aujourd\'hui !';
+    document.getElementById('ritualCard').style.opacity = '0.5';
+    document.getElementById('ritualCard').onclick = null;
+  } else {
+    document.getElementById('streakMsg').textContent = 'Complétez votre rituel pour commencer le streak';
+  }
+
+  // Horoscope
+  if (state.sign) {
+    const template = HOROSCOPE_TEMPLATES[Math.floor(Math.random() * HOROSCOPE_TEMPLATES.length)];
+    const text = template
+      .replace(/\{sign\}/g, state.sign.name)
+      .replace(/\{quality\}/g, QUALITIES[Math.floor(Math.random() * QUALITIES.length)])
+      .replace(/\{action1\}/g, ACTIONS[Math.floor(Math.random() * ACTIONS.length)])
+      .replace(/\{action2\}/g, ACTIONS[Math.floor(Math.random() * ACTIONS.length)])
+      .replace(/\{topic\}/g, TOPICS[Math.floor(Math.random() * TOPICS.length)]);
+    document.getElementById('horoscopeTitle').textContent = `${state.sign.name} — ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}`;
+    document.getElementById('horoscopeText').textContent = text;
+
+    // Luck score (seeded by day for consistency)
+    const seed = new Date().getDate() + new Date().getMonth() * 31;
+    const luck = 55 + (seed % 40);
+    setTimeout(() => {
+      document.getElementById('luckFill').style.width = luck + '%';
+      document.getElementById('luckNum').textContent = luck + '%';
+    }, 500);
+  }
+
+  // Journal prompt
+  const promptIndex = (new Date().getDate() - 1) % JOURNAL_PROMPTS.length;
+  document.getElementById('journalPrompt').textContent = '"' + JOURNAL_PROMPTS[promptIndex] + '"';
+
+  // Profile
+  document.getElementById('profileName').textContent = state.name;
+  document.getElementById('profileSign').textContent = state.sign ? `${state.sign.emoji} ${state.sign.name}` : '';
+  document.getElementById('profileAvatar').textContent = state.name.charAt(0).toUpperCase();
+
+  // Pod member name
+  if (document.getElementById('podMember1')) {
+    document.getElementById('podMember1').textContent = state.name;
+  }
+}
+
+// COMPLETE RITUAL
+function completeRitual() {
+  if (state.todayCompleted) return;
+  state.todayCompleted = true;
+  state.streak++;
+  state.ritualsCompleted++;
+  saveState();
+
+  const counter = document.getElementById('streakCounter');
+  counter.classList.add('ritual-complete');
+  setTimeout(() => counter.classList.remove('ritual-complete'), 500);
+
+  document.getElementById('streakMsg').textContent = '✓ Rituel complété aujourd\'hui !';
+  document.getElementById('ritualCard').style.opacity = '0.5';
+  document.getElementById('ritualCard').onclick = null;
+  document.getElementById('headerStreak').textContent = state.streak;
+
+  // Show sparkle animation
+  showSparkle();
+}
+
+function showSparkle() {
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;top:50%;left:50%;font-size:4rem;z-index:9999;pointer-events:none;animation:sparkle 1s ease forwards;';
+  el.textContent = '✨';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+// JOURNAL
+function saveJournal() {
+  const text = document.getElementById('journalEntry').value.trim();
+  if (!text) return;
+  state.journalEntries.push({ date: new Date().toISOString(), text });
+  saveState();
+  document.getElementById('journalEntry').value = '';
+  // Visual feedback
+  const btn = document.querySelector('.journal-save');
+  btn.textContent = '✓ Sauvegardé !';
+  btn.style.background = 'var(--green)';
+  setTimeout(() => { btn.textContent = 'Sauvegarder'; btn.style.background = ''; }, 2000);
+}
+
+// PAGE NAVIGATION
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelector(`.tab-item[data-page="${page}"]`).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// PREMIUM MODAL
+function showPremium() {
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:32px;max-width:360px;width:100%;text-align:center;">
+      <div style="font-size:3rem;margin-bottom:16px;">✨</div>
+      <h2 style="font-family:Space Grotesk,sans-serif;font-size:1.4rem;margin-bottom:8px;">Cosmic Premium</h2>
+      <p style="color:var(--text2);font-size:0.9rem;margin-bottom:20px;">Débloquez toutes les fonctionnalités pour une expérience complète.</p>
+      <div style="text-align:left;margin-bottom:24px;">
+        <div style="display:flex;gap:10px;padding:8px 0;font-size:0.88rem;"><span>✓</span> Birth chart complète</div>
+        <div style="display:flex;gap:10px;padding:8px 0;font-size:0.88rem;"><span>✓</span> Compatibilité des signes</div>
+        <div style="display:flex;gap:10px;padding:8px 0;font-size:0.88rem;"><span>✓</span> Pods illimités</div>
+        <div style="display:flex;gap:10px;padding:8px 0;font-size:0.88rem;"><span>✓</span> Archives illimitées</div>
+        <div style="display:flex;gap:10px
+<style>
+@keyframes sparkleUp {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+  50% { opacity: 1; transform: translate(-50%, -80%) scale(1.5); }
+  100% { opacity: 0; transform: translate(-50%, -120%) scale(2); }
+}
+</style>
+<script src="app.js"></script>
+</body>
+</html>
